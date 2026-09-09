@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Cloud Platform Engineering — Executive Defense | Asghar Ahmed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07090E;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --card-border: rgba(255, 255, 255, 0.09);
+      --card-hover-border: rgba(56, 189, 248, 0.4);
+      --accent-cyan: #00E5FF;
+      --accent-purple: #A855F7;
+      --accent-emerald: #10B981;
+      --accent-amber: #F59E0B;
+      --accent-coral: #F43F5E;
+      --accent-blue: #38BDF8;
+      
+      /* Cloud Branding */
+      --aws-color: #FF9900;
+      --azure-color: #00A4FF;
+      --ali-color: #FF4D4F;
+      --multi-color: #34D399;
+
+      --text-main: #FFFFFF;
+      --text-light: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --code-bg: #0A0E17;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Ambient Background Glow Mesh */
+    .ambient-glow-1 {
+      position: absolute;
+      top: -100px;
+      left: 10%;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(0, 229, 255, 0.12) 0%, rgba(0,0,0,0) 70%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .ambient-glow-2 {
+      position: absolute;
+      bottom: -120px;
+      right: 15%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.14) 0%, rgba(0,0,0,0) 70%);
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Presentation Stage */
+    #presentation-stage {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 1;
+    }
+    .slide {
+      position: absolute;
+      width: 95%;
+      max-width: 1380px;
+      height: 92%;
+      max-height: 820px;
+      background: rgba(13, 19, 33, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 229, 255, 0.05);
+      padding: 36px 46px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.97) translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    /* Slide Header */
+    .slide-header {
+      margin-bottom: 22px;
+      position: relative;
+    }
+    .badge-tag {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: rgba(20, 30, 50, 0.8);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      margin-bottom: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+    }
+    .badge-tag::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 6px currentColor;
+    }
+    .badge-tag.purple { border-color: var(--accent-purple); color: var(--accent-purple); box-shadow: 0 0 12px rgba(168, 85, 247, 0.2); }
+    .badge-tag.green { border-color: var(--accent-emerald); color: var(--accent-emerald); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2); }
+    .badge-tag.coral { border-color: var(--accent-coral); color: var(--accent-coral); box-shadow: 0 0 12px rgba(244, 63, 94, 0.2); }
+    .badge-tag.amber { border-color: var(--accent-amber); color: var(--accent-amber); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2); }
+
+    .slide-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.25;
+      background: linear-gradient(135deg, #FFFFFF 20%, #E2E8F0 70%, #00E5FF 120%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .slide-subtitle {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-top: 5px;
+      font-weight: 500;
+    }
+
+    /* Layout Grids */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      flex: 1;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      flex: 1;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      flex: 1;
+    }
+    .grid-code-2 {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      flex: 1;
+    }
+
+    /* Cards with Top Accent Line */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .card:hover {
+      border-color: var(--card-hover-border);
+      transform: translateY(-2px);
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 16px;
+      right: 16px;
+      height: 3px;
+      background: var(--accent-cyan);
+      border-radius: 0 0 4px 4px;
+    }
+    .card.purple::before { background: var(--accent-purple); box-shadow: 0 0 10px var(--accent-purple); }
+    .card.emerald::before { background: var(--accent-emerald); box-shadow: 0 0 10px var(--accent-emerald); }
+    .card.amber::before { background: var(--accent-amber); box-shadow: 0 0 10px var(--accent-amber); }
+    .card.coral::before { background: var(--accent-coral); box-shadow: 0 0 10px var(--accent-coral); }
+    .card.cyan::before { background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
+    .card.aws::before { background: var(--aws-color); box-shadow: 0 0 10px var(--aws-color); }
+    .card.azure::before { background: var(--azure-color); box-shadow: 0 0 10px var(--azure-color); }
+    .card.alibaba::before { background: var(--ali-color); box-shadow: 0 0 10px var(--ali-color); }
+    .card.multinet::before { background: var(--multi-color); box-shadow: 0 0 10px var(--multi-color); }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title.cyan { color: var(--accent-cyan); }
+    .card-title.purple { color: var(--accent-purple); }
+    .card-title.emerald { color: var(--accent-emerald); }
+    .card-title.amber { color: var(--accent-amber); }
+    .card-title.coral { color: var(--accent-coral); }
+    .card-title.aws { color: var(--aws-color); }
+    .card-title.azure { color: var(--azure-color); }
+    .card-title.alibaba { color: var(--ali-color); }
+    .card-title.multinet { color: var(--multi-color); }
+
+    /* Lists */
+    ul.item-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    ul.item-list li {
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: var(--text-muted);
+      position: relative;
+      padding-left: 16px;
+    }
+    ul.item-list li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--accent-cyan);
+      font-size: 14px;
+      font-weight: bold;
+    }
+    ul.item-list.purple li::before { color: var(--accent-purple); }
+    ul.item-list.emerald li::before { color: var(--accent-emerald); }
+    ul.item-list.coral li::before { color: var(--accent-coral); }
+    ul.item-list.amber li::before { color: var(--accent-amber); }
+    ul.item-list.aws li::before { color: var(--aws-color); }
+    ul.item-list.azure li::before { color: var(--azure-color); }
+    ul.item-list.alibaba li::before { color: var(--ali-color); }
+    ul.item-list.multinet li::before { color: var(--multi-color); }
+
+    ul.item-list li strong {
+      color: var(--text-light);
+      font-weight: 700;
+    }
+
+    /* Metric Pills */
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .metric-pill {
+      background: rgba(16, 24, 40, 0.9);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      text-align: center;
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      transition: all 0.25s;
+    }
+    .metric-pill:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+    .metric-value {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+    .metric-value.cyan { color: var(--accent-cyan); text-shadow: 0 0 16px rgba(0, 229, 255, 0.4); }
+    .metric-value.emerald { color: var(--accent-emerald); text-shadow: 0 0 16px rgba(16, 185, 129, 0.4); }
+    .metric-value.purple { color: var(--accent-purple); text-shadow: 0 0 16px rgba(168, 85, 247, 0.4); }
+    .metric-value.amber { color: var(--accent-amber); text-shadow: 0 0 16px rgba(245, 158, 11, 0.4); }
+    .metric-value.coral { color: var(--accent-coral); text-shadow: 0 0 16px rgba(244, 63, 94, 0.4); }
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 5px;
+      font-weight: 600;
+    }
+
+    /* Code Blocks */
+    pre.code-block {
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      color: var(--accent-cyan);
+      overflow-x: auto;
+      flex: 1;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Navigation Bar */
+    #nav-bar {
+      height: 68px;
+      background: rgba(7, 10, 18, 0.95);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 36px;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+    .nav-left, .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .nav-btn {
+      background: #172033;
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover {
+      background: #24314d;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+    }
+    .nav-btn.primary {
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      border-color: #A855F7;
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.35);
+    }
+    .nav-btn.primary:hover {
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    }
+    .slide-counter {
+      font-size: 13.5px;
+      color: var(--accent-cyan);
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Speaker Notes Drawer */
+    #notes-drawer {
+      position: fixed;
+      bottom: 68px;
+      left: 0;
+      right: 0;
+      max-height: 290px;
+      background: rgba(10, 15, 28, 0.98);
+      border-top: 2px solid var(--accent-cyan);
+      padding: 22px 36px;
+      overflow-y: auto;
+      z-index: 40;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.7);
+    }
+    #notes-drawer.open {
+      transform: translateY(0);
+    }
+    .notes-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+    .notes-body {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: #E2E8F0;
+      white-space: pre-line;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <div id="presentation-stage">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide active" data-title="Executive Opening">
+      <div style="margin-top: 24px; margin-bottom: 28px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+          <div style="width: 44px; height: 4px; background: var(--accent-cyan); border-radius: 2px; box-shadow: 0 0 10px var(--accent-cyan);"></div>
+          <div style="width: 24px; height: 4px; background: var(--accent-purple); border-radius: 2px;"></div>
+        </div>
+        <span class="badge-tag">Executive Technical Assessment & Architectural Defense</span>
+        <h1 style="font-size: 40px; font-weight: 800; line-height: 1.2; margin-bottom: 10px;">Multi-Cloud Infrastructure & Platform Engineering</h1>
+        <p style="font-size: 16px; color: var(--accent-blue); max-width: 960px;">Production Architecture, Reliability Engineering, FinOps & War Stories Across AWS, Azure, Alibaba Cloud & Multinet</p>
+      </div>
+
+      <div class="grid-code-2" style="flex: 1;">
+        <div class="card purple" style="justify-content: center;">
+          <h3 class="card-title purple" style="font-size: 16px;">Candidate Profile & Executive Scope</h3>
+          <ul class="item-list purple" style="margin-top: 8px;">
+            <li><strong>Candidate:</strong> Asghar Ahmed — Senior DevOps & Cloud Infrastructure Architect</li>
+            <li><strong>Target Audience:</strong> Chief Technology Officer (CTO) & Vice President of Engineering</li>
+            <li><strong>Direct Contact:</strong> asghar.ahmed78692@gmail.com &nbsp;|&nbsp; +92 345 3796919</li>
+            <li><strong>Core Competencies:</strong> Multi-cloud IaC, K8s GitOps, 24/7 Incident MTTR, FinOps ($16K/mo cut), Zero-Trust & DR (RTO 10m / RPO 2.2s)</li>
+          </ul>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="metric-pill">
+            <div class="metric-value cyan">4 Clouds</div>
+            <div class="metric-label">AWS, Azure, Ali, Multinet</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-value emerald">20% Cut</div>
+            <div class="metric-label">$80K to $64K / month</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-value purple">10m 15s</div>
+            <div class="metric-label">Measured DR Failover RTO</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-value coral">24m MTTR</div>
+            <div class="metric-label">P1 DB Connection RCA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+EXECUTIVE OPENING REMARKS (TO CTO & VP OF ENGINEERING):
+Good morning / afternoon. Thank you for the opportunity to present my technical vision, hands-on architectural experience, and production case studies for the Ahya multi-cloud platform.
+
+Today's presentation directly answers the 8 technical scenarios of your recruitment evaluation. What you will see is not just textbook definitions, but how I have engineered, secured, and debugged high-scale production systems across four diverse cloud environments:
+1. AWS (me-central-1 UAE): Main calculation engine and marketplace
+2. Azure (uaenorth): Disaster recovery warm standby
+3. Alibaba Cloud (Riyadh, KSA): Saudi sovereign compliance engine
+4. Multinet (Pakistan): On-premise VMware hypervisor with strict sovereign data residency.
+
+Throughout this presentation, I'll walk you through our directory structures, GitOps pipelines, real failure post-mortems, and how we cut $16,000/month recurring while achieving 10-minute DR RTO.
+      </div>
+    </div>
+
+    <!-- SLIDE 2: MULTI-CLOUD FOOTPRINT -->
+    <div class="slide" data-title="Platform Landscape">
+      <div class="slide-header">
+        <span class="badge-tag">Platform Overview</span>
+        <h2 class="slide-title">Multi-Cloud Operating Footprint & Workload Distribution</h2>
+        <p class="slide-subtitle">Powering AhyaOS (CMAP calculation), Tawazun (Carbon Marketplace), and AhyaAI across 4 regional cloud providers</p>
+      </div>
+
+      <div class="grid-4">
+        <div class="card aws">
+          <span style="font-size: 10px; font-weight: 800; color: var(--aws-color); letter-spacing: 1px;">PRIMARY PLATFORM</span>
+          <h3 class="card-title aws" style="margin-top: 4px;">AWS me-central-1</h3>
+          <ul class="item-list aws">
+            <li><strong>Core Role:</strong> AhyaOS CMAP calculations & Tawazun Marketplace</li>
+            <li><strong>Kubernetes:</strong> EKS v1.28.4 managed with Karpenter v0.32.1</li>
+            <li><strong>Database:</strong> Aurora PostgreSQL v15 (Primary Writer)</li>
+            <li><strong>Security:</strong> AWS WAFv2 + CloudFront + ALB + AWS KMS</li>
+            <li><strong>FinOps Baseline:</strong> $50,000 / mo (62.5% of total spend)</li>
+          </ul>
+        </div>
+
+        <div class="card azure">
+          <span style="font-size: 10px; font-weight: 800; color: var(--azure-color); letter-spacing: 1px;">HOT DR STANDBY</span>
+          <h3 class="card-title azure" style="margin-top: 4px;">Azure uaenorth</h3>
+          <ul class="item-list azure">
+            <li><strong>Core Role:</strong> Hot standby for instant regional disaster recovery</li>
+            <li><strong>Kubernetes:</strong> AKS v1.28.3 with KEDA dynamic autoscaling</li>
+            <li><strong>Database:</strong> PostgreSQL Flexible Server (pglogical subscriber)</li>
+            <li><strong>Security:</strong> Azure Front Door Premium WAF + Threat Intel</li>
+            <li><strong>FinOps Baseline:</strong> $15,000 / mo (18.75% of total spend)</li>
+          </ul>
+        </div>
+
+        <div class="card alibaba">
+          <span style="font-size: 10px; font-weight: 800; color: var(--ali-color); letter-spacing: 1px;">KSA COMPLIANCE</span>
+          <h3 class="card-title alibaba" style="margin-top: 4px;">Alibaba Riyadh</h3>
+          <ul class="item-list alibaba">
+            <li><strong>Core Role:</strong> Runs Saudi NDMO / regulatory compliance engine</li>
+            <li><strong>Kubernetes:</strong> ACK v1.28.1 (Aliyun Container Service)</li>
+            <li><strong>Database:</strong> Alibaba RDS PostgreSQL + Alibaba KMS</li>
+            <li><strong>Security:</strong> Cloud Native WAF 3.0 protecting ingress</li>
+            <li><strong>FinOps Baseline:</strong> $7,000 / mo (8.75% of total spend)</li>
+          </ul>
+        </div>
+
+        <div class="card multinet">
+          <span style="font-size: 10px; font-weight: 800; color: var(--multi-color); letter-spacing: 1px;">DATA RESIDENCY</span>
+          <h3 class="card-title multinet" style="margin-top: 4px;">Multinet Pakistan</h3>
+          <ul class="item-list multinet">
+            <li><strong>Core Role:</strong> Local data residency & batch ingestion pipeline</li>
+            <li><strong>Kubernetes:</strong> Self-Managed RKE2 v1.27.8 on VMware vCD v10.4</li>
+            <li><strong>Database & S3:</strong> On-Prem MinIO S3 + Ceph Storage + LUKS</li>
+            <li><strong>Security:</strong> OpenResty Nginx v1.25 + Coraza WAF v3.0 (CRS v4)</li>
+            <li><strong>FinOps Baseline:</strong> $8,000 / mo (10.0% of total spend)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• Ahya’s architecture is driven by business compliance, high availability, and geographic data sovereignty.
+• AWS UAE is our primary production powerhouse hosting AhyaOS calculations and the Tawazun marketplace.
+• Azure UAE North provides active-warm-standby disaster recovery with sub-3 second data replication lag.
+• Alibaba Cloud in Riyadh guarantees strict compliance with Saudi Arabian NDMO regulations, keeping local sovereign data within KSA borders.
+• Multinet Pakistan leverages on-premises virtualization on VMware vCloud Director for sensitive emissions data ingestion that must legally remain in Pakistan.
+• In total, we manage 8 Kubernetes clusters, 200 microservices, and 200 virtual machines with zero vendor lock-in.
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Q1 TERRAFORM MULTI-CLOUD -->
+    <div class="slide" data-title="Q1: Terraform IaC">
+      <div class="slide-header">
+        <span class="badge-tag cyan">Question 1: Terraform Across Four Clouds</span>
+        <h2 class="slide-title">Modular Codebase Architecture & Sovereign State Isolation</h2>
+        <p class="slide-subtitle">Clean monorepo design, decoupled root modules, and strict compliance-driven backend isolation</p>
+      </div>
+
+      <div class="grid-code-2">
+        <div class="card cyan">
+          <h3 class="card-title cyan">Directory Structure: Decoupled Monorepo</h3>
+          <pre class="code-block">ahya-terraform-cloud/
+├── environments/                   # Isolated Root Modules
+│   ├── aws-primary-uae/            # backend.tf (S3), main.tf
+│   ├── azure-dr-uae/               # backend.tf (S3), main.tf
+│   ├── multinet-residency-pk/      # backend.tf (Consul/MinIO)
+│   └── alibaba-compliance-ksa/     # backend.tf (S3), main.tf
+└── modules/                        # Reusable Standard Modules
+    ├── aws/       (eks, rds_aurora, vpc, alb)
+    ├── azure/     (aks, flexible_pg, vnet)
+    ├── alibaba/   (ack, rds_pg, vpc)
+    └── multinet/  (vcd_vapp, vcd_vm, pgbouncer)</pre>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="card purple" style="flex: 1;">
+            <h3 class="card-title purple">State Isolation & Data Sovereignty</h3>
+            <ul class="item-list purple">
+              <li><strong>Hyperscalers (AWS/Azure/Ali):</strong> Encrypted S3 backend with AWS KMS and DynamoDB distributed state locking.</li>
+              <li><strong>Pakistan Sovereign Compliance:</strong> Local data sovereignty laws prohibit foreign state storage; state runs on On-Prem MinIO S3 in Pakistan.</li>
+              <li><strong>Consul Mutex:</strong> Linux VM with HashiCorp Consul v1.162 manages distributed state locking to prevent concurrent apply collisions.</li>
+            </ul>
+          </div>
+
+          <div class="card amber" style="flex: 1;">
+            <h3 class="card-title amber">Dynamic Authentication Brokerage (Vault)</h3>
+            <ul class="item-list amber">
+              <li><strong>Zero Static Keys:</strong> No plaintext credentials or secrets in .tfvars or git.</li>
+              <li><strong>Short-Lived STS Tokens:</strong> HashiCorp Vault 1.15.2 brokers AWS STS assume-role, Azure SP tokens, and Alibaba RAM STS.</li>
+              <li><strong>VMware vCD Tokens:</strong> Vault manages API session tokens and refreshes them every 60 minutes.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• Architectural Philosophy: Separation of Concerns. We do not maintain a single monolithic Terraform state. Instead, we have isolated root modules under `environments/` consuming standardized modules under `modules/`.
+• State Isolation & Compliance: In AWS, Azure, and Alibaba, state files live in encrypted S3 buckets with DynamoDB locking. However, Pakistan regulations strictly mandate that infrastructure metadata and financial/emissions logs must remain in-country. To comply, Multinet's backend uses local on-prem MinIO storage and an on-prem HashiCorp Consul cluster for distributed locking.
+• Dynamic Auth via Vault: No engineer or CI runner has static long-lived cloud keys. Everything is dynamically federated through HashiCorp Vault using short-lived STS tokens and dynamic vCloud Director sessions.
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Q1 WAR STORY -->
+    <div class="slide" data-title="Q1: War Story">
+      <div class="slide-header">
+        <span class="badge-tag coral">Question 1: Production War Story</span>
+        <h2 class="slide-title">Eliminating Cross-Cloud Coupling & Resolving vCD Token Timeouts</h2>
+        <p class="slide-subtitle">How a 30-minute API timeout in staging triggered an architectural refactoring to decouple failure domains</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card coral">
+          <h3 class="card-title coral">1. The Anti-Pattern & Mid-Apply Crash</h3>
+          <ul class="item-list coral">
+            <li><strong>Monolithic Root Module:</strong> Initially, cross-cloud networking was managed from a single root module using multiple provider aliases (aws, azurerm, vcd).</li>
+            <li><strong>30-Min Token Expiration:</strong> During a normal staging apply, Multinet VMware vCD session token expired at minute 30.</li>
+            <li><strong>Crash Log:</strong> <code>Error: [VCD-API] 401 Unauthorized: Session token has expired or is invalid</code> on module.multinet.vcd_vapp_vm.worker[0].</li>
+            <li><strong>Blast Radius Spillage:</strong> Pipeline aborted mid-flight; left orphaned AWS ALB target groups and orphaned DynamoDB locks.</li>
+          </ul>
+        </div>
+
+        <div class="card amber">
+          <h3 class="card-title amber">2. Immediate 45-Min Incident Triage</h3>
+          <ul class="item-list amber">
+            <li><strong>Manual Lock Release:</strong> CLI intervention: ran <code>terraform force-unlock &lt;LOCK-ID&gt;</code> to release the unmanaged lock.</li>
+            <li><strong>Target Group Cleanup:</strong> Manually audited and pruned dangling AWS ALB target groups to prevent routing traffic to dead instances.</li>
+            <li><strong>Provider Keepalive:</strong> Reconfigured vCD provider session keepalive to 120 minutes to prevent mid-operation token drops.</li>
+            <li><strong>Automated Retries:</strong> Wrapped API token generation in CI with pre-flight health validation.</li>
+          </ul>
+        </div>
+
+        <div class="card emerald">
+          <h3 class="card-title emerald">3. Permanent Decoupled Architecture</h3>
+          <ul class="item-list emerald">
+            <li><strong>Root Module Isolation:</strong> Permanently split infrastructure into completely independent root modules per cloud provider.</li>
+            <li><strong>terraform_remote_state:</strong> Cross-cloud wiring connects exclusively through read-only remote state data sources and Vault.</li>
+            <li><strong>Zero Cross-Cloud Blast Radius:</strong> Multinet ISP API downtime can never block or corrupt AWS or Azure infrastructure pipelines.</li>
+            <li><strong>Isolated CI/CD:</strong> GitHub Actions runs independent plan/apply jobs with isolated state locks.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• A key sign of a senior platform engineer is learning from architectural anti-patterns.
+• In early development, like many teams, cross-cloud networking was attempted using multiple provider blocks in a single root module.
+• In staging, vCD's 30-minute API token expired mid-apply. Because Terraform runs sequentially through dependencies, the failure in Multinet killed the entire run, leaving AWS ALBs orphaned and DynamoDB locked.
+• Rather than just patching the timeout to 120 minutes, I spearheaded the architectural refactoring to decouple the environments completely.
+• By enforcing `terraform_remote_state` and independent CI pipelines, failure domains are strictly isolated: no single cloud provider's API issues can ever block deployment to our other three clouds.
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Q2 K8S FLEET -->
+    <div class="slide" data-title="Q2: Kubernetes GitOps">
+      <div class="slide-header">
+        <span class="badge-tag purple">Question 2: Kubernetes Fleet Operations</span>
+        <h2 class="slide-title">Multi-Cloud GitOps Orchestration & Storage Abstraction</h2>
+        <p class="slide-subtitle">Unified declarative deployments across EKS, AKS, ACK, and RKE2 using Argo CD and Helm Matrix Generators</p>
+      </div>
+
+      <div class="grid-code-2">
+        <div class="card cyan">
+          <h3 class="card-title cyan">GitOps Engine: Argo CD ApplicationSet</h3>
+          <pre class="code-block">apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ahyaos-emission-engine
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            tier: production
+  template:
+    metadata:
+      name: 'ahyaos-engine-{{name}}'
+    spec:
+      source:
+        repoURL: 'https://github.com/ahya-tech/helm-workloads.git'
+        chart: charts/ahyaos-engine
+        helm:
+          valueFiles:
+            - 'values-{{metadata.labels.cloud}}.yaml'
+      destination:
+        server: '{{server}}'
+        namespace: production</pre>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="card purple" style="flex: 1;">
+            <h3 class="card-title purple">Cluster Fleet Topology & Versions</h3>
+            <ul class="item-list purple">
+              <li><strong>AWS EKS v1.28.4:</strong> Computational backbone for AhyaOS CMAP calculations & Tawazun marketplace.</li>
+              <li><strong>Azure AKS v1.28.3:</strong> Hot standby disaster recovery cluster.</li>
+              <li><strong>Alibaba ACK v1.28.1:</strong> Riyadh cluster executing Saudi NDMO compliance.</li>
+              <li><strong>Multinet RKE2 v1.27.8:</strong> Self-managed Rancher RKE2 for Pakistan residency.</li>
+            </ul>
+          </div>
+
+          <div class="card amber" style="flex: 1;">
+            <h3 class="card-title amber">Storage Matrix Abstraction</h3>
+            <ul class="item-list amber">
+              <li><strong>Unified Helm PVCs:</strong> Developers declare generic PVCs; storage classes are bound dynamically via <code>values-&lt;cloud&gt;.yaml</code>.</li>
+              <li><strong>AWS:</strong> <code>gp3</code> (EBS CSI driver with tuned throughput/IOPS).</li>
+              <li><strong>Azure:</strong> <code>managed-csi</code> (Azure Premium SSD).</li>
+              <li><strong>Alibaba:</strong> <code>alicloud-disk-SSD</code> provisioner.</li>
+              <li><strong>Multinet:</strong> <code>local-path-provisioner</code> backed by distributed Ceph.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• Managing 4 Kubernetes distributions across 4 clouds with different minor versions (1.27.8 to 1.28.4) requires strict GitOps governance.
+• We use Argo CD v2.9.3 with ApplicationSets and the Cluster Matrix Generator. Developers maintain a single Helm chart for the AhyaOS engine.
+• Argo CD detects cluster labels (e.g. `cloud: aws`, `compliance: ndmo`) and automatically injects the cloud-specific `values-{{cloud}}.yaml` file.
+• This abstracts infrastructure differences completely: developers don't care whether storage is gp3 on AWS, managed-csi on Azure, or Ceph on Multinet—it is bound cleanly at deployment time.
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Q2 WAR STORY -->
+    <div class="slide" data-title="Q2: War Story">
+      <div class="slide-header">
+        <span class="badge-tag coral">Question 2: Production War Story</span>
+        <h2 class="slide-title">Kernel-Level Cilium eBPF Outage & Automated Node Patching</h2>
+        <p class="slide-subtitle">Automating rolling updates across 4 clouds and troubleshooting eBPF map memory exhaustion during an RKE2 upgrade</p>
+      </div>
+
+      <div class="grid-code-2">
+        <div class="card cyan">
+          <h3 class="card-title cyan">Rolling Node Upgrade Strategy by Cloud</h3>
+          <ul class="item-list cyan">
+            <li><strong>AWS EKS (Karpenter v0.32.1):</strong> Automatic drift detection & JIT node replacement with disruption limit <code>maxUnavailable: 1</code>.</li>
+            <li><strong>Azure AKS (Node Surge):</strong> Upgraded via <code>az aks nodepool upgrade --max-surge 33%</code>; provisions surplus nodes ahead of cordoning for zero downtime.</li>
+            <li><strong>Multinet RKE2 (Ansible Automation):</strong> Orchestrated node rolling playbook:
+              <pre class="code-block" style="margin-top: 8px; font-size: 10px;">kubectl cordon worker-node-pk-04
+kubectl drain worker-node-pk-04 --ignore-daemonsets   --delete-emptydir-data --grace-period=180 --force
+# System patch:
+apt-get --only-upgrade install -y rke2-agent && systemctl restart rke2-agent
+kubectl uncordon worker-node-pk-04</pre>
+            </li>
+          </ul>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="card coral" style="flex: 1;">
+            <h3 class="card-title coral">Cilium CNI eBPF Outage & Diagnosis</h3>
+            <ul class="item-list coral">
+              <li><strong>The Failure:</strong> During RKE2 upgrade (v1.26 &rarr; v1.27), batch pods stuck in <code>CrashLoopBackOff</code> / <code>Pending</code>.</li>
+              <li><strong>Kubelet Error:</strong> <code>cilium-cni: failed to create bpf map: cannot allocate memory</code></li>
+              <li><strong>Root Cause:</strong> Ubuntu 20.04 (Kernel 5.4) default BPF memory limits were exceeded when Cilium v1.14.4 hit >60 pods per node.</li>
+            </ul>
+          </div>
+
+          <div class="card emerald" style="flex: 1;">
+            <h3 class="card-title emerald">Kernel Remediation & Golden Image Baking</h3>
+            <ul class="item-list emerald">
+              <li><strong>Immediate Fix (14 Mins):</strong> Drained nodes and tuned live kernel parameters:
+                <code>sysctl -w net.core.bpf_jit_limit=1073741824</code><br>
+                <code>sysctl -w kernel.unprivileged_bpf_disabled=0</code>
+              </li>
+              <li><strong>Packer Baking:</strong> Codified sysctl thresholds directly into Packer golden images; all new hypervisors boot fully immune.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• When managing self-hosted Kubernetes on bare-metal or VMware (like Multinet), you must possess deep kernel and CNI debugging skills.
+• In cloud-managed EKS and AKS, Karpenter and node surging handle AMI recycling cleanly. But in Multinet, we built an automated Ansible cordon/drain/upgrade/uncordon pipeline.
+• During the 1.26 to 1.27 upgrade, Cilium CNI crashed with `cannot allocate memory` creating BPF maps. We diagnosed that Ubuntu 20.04 Kernel 5.4 has conservative default BPF JIT limits that suffocated when pod density surpassed 60 pods/node.
+• We executed dynamic sysctl fixes in 14 minutes, then codified the kernel settings directly into our Packer golden image build pipeline so it can never recur.
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Q3 PATCH MANAGEMENT -->
+    <div class="slide" data-title="Q3: Patch Fleet">
+      <div class="slide-header">
+        <span class="badge-tag emerald">Question 3: Patch Management & DevSecOps</span>
+        <h2 class="slide-title">Automated Fleet Maintenance Across 200 VMs & 200+ Images</h2>
+        <p class="slide-subtitle">Progressive ring deployment, Windows WinRM management, CIS golden images, and Trivy security gates</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card cyan">
+          <h3 class="card-title cyan">1. Fleet Scope & Ring Deployment</h3>
+          <ul class="item-list cyan">
+            <li><strong>Fleet Scale:</strong> 150 Linux VMs (Ubuntu 22.04 LTS & RHEL 8.8: Kafka, Redis, ML workers) + 50 Windows Server 2022 VMs (ERP connector: SAP & Dynamics).</li>
+            <li><strong>Tooling Backbone:</strong> Ansible Core v2.15.4 & AWX v23.5.0 with dynamic AWS, Azure & Multinet REST inventories.</li>
+            <li><strong>Ring 0 — Dev (10%):</strong> Early warning canary.</li>
+            <li><strong>Ring 1 — Staging (100%):</strong> Full staging rollout with regression tests.</li>
+            <li><strong>Ring 2 — Prod (20% Batches):</strong> <code>serial: "20%"</code>, <code>max_fail_percentage: 0</code>. Halts on first failure.</li>
+          </ul>
+        </div>
+
+        <div class="card purple">
+          <h3 class="card-title purple">2. Windows Fleet & WinRM Hardening</h3>
+          <ul class="item-list purple">
+            <li><strong>Enterprise ERP Role:</strong> 50 Windows VMs interface AhyaOS with on-prem SAP & Microsoft Dynamics.</li>
+            <li><strong>WinRM HTTPS (5986):</strong> Plaintext port 5985 is blocked at network perimeter.</li>
+            <li><strong>Vault TLS Lifecycle:</strong> WinRM server certificates are dynamically generated and rotated via HashiCorp Vault.</li>
+            <li><strong>Reboot Resiliency:</strong> Configured <code>reboot_timeout: 1200</code> (20 mins) to prevent Ansible controller drops during slow cumulative updates.</li>
+          </ul>
+        </div>
+
+        <div class="card emerald">
+          <h3 class="card-title emerald">3. Immutable Nodes & Images</h3>
+          <ul class="item-list emerald">
+            <li><strong>Immutable Worker Nodes:</strong> Nodes are never patched in place. Packer v1.9.4 builds CIS-hardened AMIs/VHDs bi-weekly; Karpenter rolls nodes with PDB <code>minAvailable: 80%</code>.</li>
+            <li><strong>Trivy CI Security Gate:</strong> <code>trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed</code> blocks deployments on critical CVEs.</li>
+            <li><strong>Distroless Base Images:</strong> Chainguard Python & Distroless Debian 12 (reducing attack surface by 90%).</li>
+            <li><strong>Renovate Automation:</strong> Weekly automated base image upgrade PRs.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• Enterprise fleet management requires balancing security urgency against production uptime.
+• We operate a ring-based patching model: Ring 0 (Dev 10%), Ring 1 (Staging 100%), Ring 2 (Prod in 20% canary batches with `max_fail_percentage: 0`).
+• For our 50 Windows ERP connector servers, we enforce WinRM over HTTPS on port 5986 with Vault-managed TLS certs and extended reboot timeouts (1200s).
+• For Kubernetes and containers, we practice immutable infrastructure: nodes are recycled via bi-weekly CIS-hardened Packer golden images, and containers are scanned using Trivy with hard exit gates on High/Critical vulnerabilities using Chainguard and Distroless base images.
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Q3 WAR STORY -->
+    <div class="slide" data-title="Q3: War Story">
+      <div class="slide-header">
+        <span class="badge-tag coral">Question 3: Production War Story</span>
+        <h2 class="slide-title">CVE-2023-4911 ('Looney Tunables') Zero-Day Emergency Response</h2>
+        <p class="slide-subtitle">Remediating a critical Linux vulnerability within 4 hours while resolving Windows Update Service Lockouts (0x80070422)</p>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric-pill">
+          <div class="metric-value coral">CVE-2023-4911</div>
+          <div class="metric-label">Looney Tunables glibc</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-value amber">4-Hour SLA</div>
+          <div class="metric-label">Security Policy Target</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-value emerald">3h 12m</div>
+          <div class="metric-label">Actual Fleet Remediation</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-value cyan">100% Fleet</div>
+          <div class="metric-label">200 VMs & 8 Clusters Patched</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card coral">
+          <h3 class="card-title coral">The Roadblock: Windows ERP Update Hang & Error</h3>
+          <ul class="item-list coral">
+            <li><strong>Strict Mandate:</strong> Critical buffer overflow vulnerability announced in glibc; enterprise security policy called for complete fleet fix within 4 hours.</li>
+            <li><strong>Linux Success:</strong> 150 Linux servers and 8 K8s clusters were patched and verified cleanly within 90 minutes via AWX.</li>
+            <li><strong>Windows ERP Failure:</strong> Ansible hung and aborted across 6 Multinet ERP connector servers:
+              <pre class="code-block" style="margin-top: 8px; font-size: 10px;">fatal: [win-erp-pk-02]: FAILED! => {
+  "changed": false,
+  "msg": "Failed to install Windows updates: The service cannot be started,
+          either because it is disabled or has no enabled devices...
+          HRESULT: 0x80070422"
+}</pre>
+            </li>
+            <li><strong>Audit Root Cause:</strong> Windows Update service (<code>wuauserv</code>) was disabled during a prior finance audit to prevent mid-month reboots.</li>
+          </ul>
+        </div>
+
+        <div class="card emerald">
+          <h3 class="card-title emerald">The Solution: Ansible Emergency Pre-Task Injection</h3>
+          <ul class="item-list emerald">
+            <li><strong>Playbook Pre-Task:</strong> Added an idempotent pre-task to <code>patch_fleet.yml</code> before invoking <code>win_updates</code>:
+              <pre class="code-block" style="margin-top: 8px; font-size: 10px;">- name: Unfreeze Windows Update Service
+  ansible.windows.win_service:
+    name: wuauserv
+    start_mode: manual
+    state: started
+
+- name: Clear SoftwareDistribution download locks
+  ansible.windows.win_shell: |
+    Remove-Item "C:\Windows\SoftwareDistribution\Download\*" -Recurse -Force</pre>
+            </li>
+            <li><strong>SLA Beaten:</strong> AWX re-run succeeded across all 50 Windows servers; entire fleet 100% remediated in <strong>3 hours and 12 minutes</strong> (48 minutes ahead of SLA!).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• Real security engineering is tested when an unannounced critical zero-day drops with a tight SLA.
+• When glibc 'Looney Tunables' hit, our SLA was strict: 4 hours. Linux patched in 90 minutes, but the playbook failed on 6 Windows ERP connectors with error 0x80070422.
+• Rather than finger-pointing at the finance audit team who had disabled `wuauserv` to avoid month-end reboot collisions, I quickly engineered an idempotent Ansible pre-task that enabled `wuauserv`, purged download locks, installed updates, and cleanly closed the loop.
+• We completed 100% remediation across 200 servers in 3 hours and 12 minutes without downtime.
+      </div>
+    </div>
+
+    <!-- SLIDE 9: Q4 WAF & SECURITY -->
+    <div class="slide" data-title="Q4: WAF & Zero-Trust">
+      <div class="slide-header">
+        <span class="badge-tag purple">Question 4: WAF & Security Hardening</span>
+        <h2 class="slide-title">Multi-Cloud Perimeter Defense, OWASP CRS & Zero-Trust</h2>
+        <p class="slide-subtitle">Layer-7 protection across 4 clouds, strict auth rate-limiting, and end-to-end cryptographic posture</p>
+      </div>
+
+      <div class="grid-4">
+        <div class="card aws">
+          <h3 class="card-title aws">AWS WAFv2</h3>
+          <span style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">CloudFront & ALB Perimeter</span>
+          <ul class="item-list aws">
+            <li><strong>Rulesets:</strong> AWSManagedRulesCommonRuleSet + KnownBadInputs.</li>
+            <li><strong>Rate Limit:</strong> 300 req / 5 min per IP on <code>/api/v1/auth/</code>.</li>
+            <li><strong>Analytics:</strong> Kinesis Firehose log streaming to Athena.</li>
+          </ul>
+        </div>
+
+        <div class="card azure">
+          <h3 class="card-title azure">Azure Front Door</h3>
+          <span style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Premium WAF Engine</span>
+          <ul class="item-list azure">
+            <li><strong>Threat Intel:</strong> Microsoft Threat Intelligence real-time IP reputation.</li>
+            <li><strong>DR Shield:</strong> Global anycast routing with sub-second health probing.</li>
+            <li><strong>Bot Defense:</strong> Managed bot protection and CAPTCHA challenge.</li>
+          </ul>
+        </div>
+
+        <div class="card alibaba">
+          <h3 class="card-title alibaba">Alibaba Native WAF</h3>
+          <span style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Cloud Native WAF 3.0</span>
+          <ul class="item-list alibaba">
+            <li><strong>Riyadh ACK Ingress:</strong> Protects sovereign carbon calculations.</li>
+            <li><strong>NDMO Compliance:</strong> Strict Saudi sovereign data security baselines.</li>
+            <li><strong>Anti-DDoS:</strong> Direct integration with Alibaba scrubbing center.</li>
+          </ul>
+        </div>
+
+        <div class="card multinet">
+          <h3 class="card-title multinet">Multinet Coraza WAF</h3>
+          <span style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">OpenResty + Coraza v3.0</span>
+          <ul class="item-list multinet">
+            <li><strong>OWASP CRS v4.0:</strong> Pure Go/CGO WAF engine integrated with Nginx v1.25.</li>
+            <li><strong>SecRule Syntax:</strong> Rate limits auth to 300 req / 300s using IP memory tracking.</li>
+            <li><strong>Paranoia Level:</strong> <code>blocking_paranoia_level=1</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card purple" style="margin-top: 16px; padding: 14px 20px;">
+        <h3 class="card-title purple" style="font-size: 14px; margin-bottom: 8px;">End-to-End Cryptography & 24-Hour Secrets Rotation</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; font-size: 12px; color: var(--text-muted);">
+          <div><strong>In-Transit:</strong> TLS 1.3 (<code>TLS_AES_256_GCM_SHA384</code>) externally; Cilium Service Mesh mTLS between all internal pods.</div>
+          <div><strong>At-Rest:</strong> AWS KMS, Azure Key Vault, Alibaba KMS; Multinet utilizes Linux LUKS volume encryption with keys in Vault.</div>
+          <div><strong>Dynamic DB Secrets:</strong> HashiCorp Vault rotates PostgreSQL credentials every 24 hours with 1-hour overlap grace for connection pools.</div>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• Security posture must be uniform even when underlying cloud providers differ.
+• In AWS, we utilize AWS WAFv2 with CloudFront and ALB. In Azure, Front Door Premium with Microsoft Threat Intelligence.
+• In Alibaba Riyadh, we deploy Cloud Native WAF 3.0. In Multinet Pakistan, where native hyperscaler WAF doesn't exist, we architected OpenResty Nginx v1.25 with Coraza WAF v3.0 executing OWASP Core Rule Set v4.0.
+• Across all platforms, auth endpoints (/api/v1/auth/) are rate-limited to 300 requests per 5 minutes per IP.
+• Internally, Zero-Trust is enforced via TLS 1.3 externally, Cilium Service Mesh mTLS internally, and HashiCorp Vault rotating PostgreSQL credentials dynamically every 24 hours.
+      </div>
+    </div>
+
+    <!-- SLIDE 10: Q4 WAR STORY -->
+    <div class="slide" data-title="Q4: War Story">
+      <div class="slide-header">
+        <span class="badge-tag coral">Question 4: Production War Story</span>
+        <h2 class="slide-title">The KPMG Audit Blocker: Surgical False-Positive Remediation</h2>
+        <p class="slide-subtitle">How we resolved a 42% submission failure during an annual carbon audit in 11 minutes without disabling WAF protection</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card coral">
+          <h3 class="card-title coral">1. The 11:30 PM Midnight Crisis</h3>
+          <ul class="item-list coral">
+            <li><strong>High-Stakes Upload:</strong> KPMG auditors were submitting multi-megabyte JSON disclosures for Scope 3 emissions verification.</li>
+            <li><strong>42% Block Rate:</strong> WAF returned HTTP 403 Forbidden on 42% of legitimate submissions.</li>
+            <li><strong>WAF Log Entry:</strong>
+              <pre class="code-block" style="font-size: 10px; margin-top: 6px;">action: BLOCK
+terminatingRuleId:
+  AWS#AWSManagedRulesCommonRuleSet#SQLi_BODY
+clientIp: 195.229.112.4
+uri: /api/v1/carbon/disclosures/batch-upload</pre>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card amber">
+          <h3 class="card-title amber">2. The Root Cause: Audit Trail SQL Syntax</h3>
+          <ul class="item-list amber">
+            <li><strong>Diagnostic String:</strong> Environmental descriptions contained diagnostic SQL snippets in JSON:
+              <pre class="code-block" style="font-size: 10px; margin-top: 6px;">"audit_trail": "SELECT * FROM sub_contractors
+  WHERE fuel_type = 'Diesel'
+  -- confirmed by auditor"</pre>
+            </li>
+            <li><strong>OWASP CRS 942100:</strong> The SQLi_BODY rule detected the <code>SELECT ... FROM</code> regex and flagged it as an active SQL injection probe.</li>
+            <li><strong>Zero Global Compromise:</strong> Refused to disable SQLi globally, which would leave AhyaOS exposed to real injection attacks.</li>
+          </ul>
+        </div>
+
+        <div class="card emerald">
+          <h3 class="card-title emerald">3. Surgical Terraform Fix in 11 Mins</h3>
+          <ul class="item-list emerald">
+            <li><strong>Surgical Override:</strong> Authored Terraform change: <code>excluded_rule { name = "SQLi_BODY" }</code> scoped exclusively to <code>/api/v1/carbon/disclosures/batch-upload</code>.</li>
+            <li><strong>Defense-in-Depth Queue:</strong> Uploaded payloads routed to an isolated async queue with AST schema validation and parameterized database binding.</li>
+            <li><strong>11-Minute Turnaround:</strong> PR merged and pipeline applied in 11 minutes. Zero audit downtime.</li>
+            <li><strong>CI Regression:</strong> Added synthetic auditor payloads into CI WAF regression tests.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• False positives during high-stakes compliance audits are moments of maximum friction between security and business.
+• At 11:30 PM, KPMG auditors uploading Scope 3 carbon data were blocked by HTTP 403s. The JSON contained legitimate text like `SELECT * FROM sub_contractors...`, tripping OWASP CRS Rule 942100 (SQLi_BODY).
+• A weak engineer might panic and disable SQLi protection globally. I refused to compromise our security posture.
+• Instead, I applied a surgical Terraform override that excluded SQLi_BODY exclusively on that specific endpoint, while routing the upload into an asynchronous worker queue that sanitized the JSON via AST parsing and parameterized queries.
+• From PagerDuty page to production fix was 11 minutes flat.
+      </div>
+    </div>
+
+    <!-- SLIDE 11: Q5 FINOPS -->
+    <div class="slide" data-title="Q5: FinOps Impact">
+      <div class="slide-header">
+        <span class="badge-tag emerald">Question 5: FinOps & Cost Optimization</span>
+        <h2 class="slide-title">Engineering 20% Recurring Savings ($16,000 / Month Reduction)</h2>
+        <p class="slide-subtitle">Data-driven cloud cost reduction across compute, storage, DR standby, and ISP connectivity without sacrificing SLOs</p>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric-pill">
+          <div class="metric-value amber">$80,000 / mo</div>
+          <div class="metric-label">Original Baseline Spend</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-value cyan">$64,000 / mo</div>
+          <div class="metric-label">Optimized Run-Rate Spend</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-value emerald">$16,000 / mo</div>
+          <div class="metric-label">Total Recurring Savings</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-value purple">20.0% Cut</div>
+          <div class="metric-label">$192,000 Annual Savings</div>
+        </div>
+      </div>
+
+      <div class="grid-4">
+        <div class="card aws">
+          <span style="font-size: 10px; font-weight: 800; color: var(--aws-color);">PILLAR 1: COMPUTE</span>
+          <h3 class="card-title aws" style="margin-top: 4px;">AWS Compute Savings</h3>
+          <div style="font-size: 18px; font-weight: 800; color: var(--accent-emerald); margin-bottom: 8px;">-$6,800 / mo</div>
+          <ul class="item-list aws">
+            <li><strong>kube-downscaler:</strong> Scaled non-prod EKS off during off-hours (08:00-18:00 GST idle at 4-7% CPU). Saved $3,200/mo.</li>
+            <li><strong>Karpenter Spot:</strong> Moved batch AhyaAI ML training to m6i.xlarge Spot instances. Saved $3,600/mo.</li>
+          </ul>
+        </div>
+
+        <div class="card emerald">
+          <span style="font-size: 10px; font-weight: 800; color: var(--accent-emerald);">PILLAR 2: STORAGE</span>
+          <h3 class="card-title emerald" style="margin-top: 4px;">Storage Architecture</h3>
+          <div style="font-size: 18px; font-weight: 800; color: var(--accent-emerald); margin-bottom: 8px;">-$3,500 / mo</div>
+          <ul class="item-list emerald">
+            <li><strong>GP2 to GP3:</strong> Converted 14 TB orphaned & active EBS volumes to GP3 with baseline IOPS. Saved $1,100/mo.</li>
+            <li><strong>S3 Glacier Instant:</strong> Moved 65 TB of historic Scope 1/2 PDFs to Glacier Instant Retrieval after 30 days. Saved $2,400/mo.</li>
+          </ul>
+        </div>
+
+        <div class="card azure">
+          <span style="font-size: 10px; font-weight: 800; color: var(--azure-color);">PILLAR 3: DISASTER RECOVERY</span>
+          <h3 class="card-title azure" style="margin-top: 4px;">Azure DR Standby</h3>
+          <div style="font-size: 18px; font-weight: 800; color: var(--accent-emerald); margin-bottom: 8px;">-$2,800 / mo</div>
+          <ul class="item-list azure">
+            <li><strong>Standby Right-Sizing:</strong> Shrunk Azure AKS DR standby from 10 to 2 Standard_D8s_v5 nodes.</li>
+            <li><strong>KEDA On-Demand:</strong> KEDA auto-scales AKS to full 18-pod production capacity only upon active DR failover. Saved $2,800/mo.</li>
+          </ul>
+        </div>
+
+        <div class="card amber">
+          <span style="font-size: 10px; font-weight: 800; color: var(--accent-amber);">PILLAR 4: CONTRACTS</span>
+          <h3 class="card-title amber" style="margin-top: 4px;">Network & Commitments</h3>
+          <div style="font-size: 18px; font-weight: 800; color: var(--accent-emerald); margin-bottom: 8px;">-$2,900 / mo</div>
+          <ul class="item-list amber">
+            <li><strong>Multinet Leased Line:</strong> Downsized 1 Gbps unmetered line to 200 Mbps burstable (actual usage &lt;85 Mbps). Saved $1,700/mo.</li>
+            <li><strong>Alibaba Savings Plan:</strong> Committed to 1-yr Compute Savings Plan for Riyadh ACK nodes. Saved $1,200/mo.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• As engineering leaders, we must deliver financial accountability alongside technical excellence.
+• Baseline monthly spend was $80,000 ($50K AWS, $15K Azure, $8K Multinet, $7K Alibaba). Through Infracost in GitHub Actions, Kubecost on EKS/AKS, and AWS CUR Athena queries, we identified and eliminated 4 massive waste buckets:
+1. AWS Compute ($6,800/mo): Used `kube-downscaler` to power down dev/staging outside MENAP hours ($3,200/mo) and moved ML batch jobs to Karpenter Spot ($3,600/mo).
+2. Storage ($3,500/mo): GP2 to GP3 migration ($1,100/mo) and S3 Glacier Instant Retrieval lifecycle rules for 65TB of compliance PDFs ($2,400/mo).
+3. Azure DR ($2,800/mo): Downsized idle warm standby nodes from 10 to 2, letting KEDA scale on actual disaster.
+4. Network & Commitments ($2,900/mo): Resized Multinet connection from 1G to 200M burstable ($1,700/mo) and signed Alibaba Savings Plan ($1,200/mo).
+• Net result: $16,000/month recurring savings ($192K/year) with zero impact on RTO, RPO, or SOC 2.
+      </div>
+    </div>
+
+    <!-- SLIDE 12: Q6 INCIDENT RESPONSE -->
+    <div class="slide" data-title="Q6: Incident RCA">
+      <div class="slide-header">
+        <span class="badge-tag coral">Question 6: Incident Response & RCA</span>
+        <h2 class="slide-title">3 AM P1 Outage: Database Connection Pool Exhaustion (INC-84920)</h2>
+        <p class="slide-subtitle">Immediate 24-minute mitigation timeline, 5-Whys root cause discovery, and permanent systemic remediation</p>
+      </div>
+
+      <div class="grid-code-2">
+        <div class="card coral">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 class="card-title coral" style="margin-bottom: 0;">Incident Chronology</h3>
+            <span style="font-size: 12px; font-weight: 800; color: var(--accent-emerald); background: rgba(16, 185, 129, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--accent-emerald);">MTTR: 24 MINS</span>
+          </div>
+          <ul class="item-list coral" style="font-size: 11.5px;">
+            <li><strong>03:08 GST:</strong> PagerDuty triggers on-call: AhyaOS API P99 latency spikes past 15,000ms.</li>
+            <li><strong>03:11 GST:</strong> HTTP 5xx error rate crosses 45%; automated severity escalates to P1.</li>
+            <li><strong>03:14 GST:</strong> DevOps Incident Commander engages; discovers Aurora PostgreSQL reached hard ceiling of 500 connections.</li>
+            <li><strong>03:17 GST:</strong> Pods throw <code>OperationalError: FATAL: remaining connection slots reserved for superuser</code>.</li>
+            <li><strong>03:21 GST:</strong> Connected via bastion superuser slot; found 340 connections locked by unindexed queries running &gt;300s.</li>
+            <li><strong>03:29 GST:</strong> Killed rogue batch workers: <code>kubectl scale deploy/ahyaos-batch-audit --replicas=0</code>.</li>
+            <li><strong>03:32 GST:</strong> Connections dropped to 42; P99 normalized to 110ms; error rate returned to 0.01%.</li>
+          </ul>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="card amber" style="flex: 1;">
+            <h3 class="card-title amber">5-Whys Root Cause Investigation</h3>
+            <ul class="item-list amber" style="font-size: 11.5px;">
+              <li><strong>1. Why degraded?</strong> PostgreSQL connection pool full (500/500 max connections).</li>
+              <li><strong>2. Why pool emptied?</strong> 340 connections locked by queries running &gt;300 seconds.</li>
+              <li><strong>3. Why queries &gt;300s?</strong> v2.14.0 release lacked index on <code>reporting_period_id</code> (scan on 38M rows).</li>
+              <li><strong>4. Why hit primary DB?</strong> Celery audit workers were pointed to primary instead of read replica.</li>
+              <li><strong>5. Why no pool shield?</strong> PgBouncer was set to 'session mode' instead of 'transaction mode'.</li>
+            </ul>
+          </div>
+
+          <div class="card emerald" style="flex: 1;">
+            <h3 class="card-title emerald">Permanent Corrective Actions</h3>
+            <ul class="item-list emerald" style="font-size: 11.5px;">
+              <li><strong>PgBouncer:</strong> Switched to transaction mode; set <code>default_pool_size=50</code>, <code>max_client_conn=5000</code>.</li>
+              <li><strong>Index:</strong> <code>CREATE INDEX CONCURRENTLY idx_emission_records_reporting_period</code>.</li>
+              <li><strong>Timeout:</strong> RDS Parameter Group <code>statement_timeout = 30000</code> (30s circuit breaker).</li>
+              <li><strong>K8s Policy:</strong> NetworkPolicy routing batch jobs exclusively to Read Replica DNS.</li>
+              <li><strong>CI Linting:</strong> <code>pg_query</code> static analyzer blocking unindexed table scans.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• Great incident management is defined by three things: rapid containment, blameless deep-dive RCA, and permanent architectural prevention.
+• At 03:08 GST, our P99 latency breached 15s and 5xx errors crossed 45%. By 03:14 I took command as Incident Commander, diagnosed the 500-connection ceiling on Aurora, and saw 340 connections held hostage by long-running aggregation queries.
+• At 03:29 I scaled the rogue Celery audit deployment to 0 replicas. Full recovery occurred at 03:32 (MTTR: 24 minutes).
+• In our 5-Whys RCA, we traced the systemic flaws: PgBouncer in session mode, Celery routed to primary instead of read replica, and a missing index on 38M rows.
+• We enacted 5 permanent fixes: PgBouncer transaction mode, concurrent indexing, statement_timeout=30s, K8s NetworkPolicies, and CI query plan linting with pg_query.
+      </div>
+    </div>
+
+    <!-- SLIDE 13: Q7 STRATEGIC IAC -->
+    <div class="slide" data-title="Q7: IaC Migration">
+      <div class="slide-header">
+        <span class="badge-tag cyan">Question 7: Infrastructure-as-Code Strategy</span>
+        <h2 class="slide-title">Transforming 40% Manual ClickOps to 100% Declarative IaC</h2>
+        <p class="slide-subtitle">3-phase risk migration, modern Terraform 1.5+ declarative import blocks, and automated drift detection</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card cyan">
+          <h3 class="card-title cyan">1. 3-Phase Risk Migration</h3>
+          <ul class="item-list cyan">
+            <li><strong>Audit Imperative:</strong> Required to satisfy SOC 2 Type II and KPMG/EY external ESG audits.</li>
+            <li><strong>Phase 1 — Networking (W1-2):</strong> VPCs, subnets, route tables, NAT Gateways, Security Groups. Broad blast radius but zero data loss risk.</li>
+            <li><strong>Phase 2 — Persistence (W3-4):</strong> RDS Aurora, ElastiCache Redis, S3, KMS keys. Guarded strictly with <code>lifecycle { prevent_destroy = true }</code>.</li>
+            <li><strong>Phase 3 — Compute & Traffic (W5-6):</strong> ALBs, Target Groups, Route 53, EKS node groups. Live traffic migrated with zero downtime.</li>
+          </ul>
+        </div>
+
+        <div class="card purple">
+          <h3 class="card-title purple">2. TF 1.5+ Native Imports</h3>
+          <ul class="item-list purple">
+            <li><strong>Declarative import Blocks:</strong>
+              <pre class="code-block" style="font-size: 10px; margin-top: 6px;">import {
+  to = aws_rds_cluster.aurora_primary
+  id = "ahyaos-prod-aurora-cluster"
+}</pre>
+            </li>
+            <li><strong>Config Generation:</strong> <code>terraform plan -generate-config-out=generated_resources.tf</code></li>
+            <li><strong>Code Scrubbing:</strong> Stripped auto-generated ARNs/IDs, parameterized variables, and enforced mandatory <code>IFRS-S2</code> compliance tags.</li>
+            <li><strong>Parity Goal:</strong> <code>Plan: 0 to add, 0 to change, 0 to destroy.</code></li>
+          </ul>
+        </div>
+
+        <div class="card emerald">
+          <h3 class="card-title emerald">3. Multinet Workaround & Drift</h3>
+          <ul class="item-list emerald">
+            <li><strong>VMware vCD 10.4 Python Layer:</strong> Custom script (<code>vcd_nat_sync.py</code>) bridged ISP schema conflicts via Terraform external data source.</li>
+            <li><strong>Token Cache & Cloud-Init:</strong> Cached PyvCloud tokens in Redis; Cloud-Init ISOs injected pre-baked Ansible control keys.</li>
+            <li><strong>Automated Drift Detection:</strong> Daily GitHub Actions workflow at 06:00 GST executes <code>terraform plan -detailed-exitcode</code>.</li>
+            <li><strong>Automated Escalation:</strong> Exit code 2 (drift detected) triggers instant Slack alert in <code>#devops-alerts</code> and logs a Jira P2 ticket.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• ClickOps is the enemy of SOC 2 compliance and platform reliability. 40% manual AWS footprint had to be eliminated.
+• Rather than a chaotic lift-and-shift, I designed a phased risk-tiered rollout: Phase 1 Networking, Phase 2 Persistence (with `prevent_destroy = true`), Phase 3 Compute & Traffic.
+• We utilized Terraform 1.5+ declarative `import` blocks and `-generate-config-out`, scrubbing machine-generated HCL into clean modular templates with mandatory `IFRS-S2` tagging.
+• In Multinet Pakistan, where VMware vCD lacked API parity, we built a Python adapter script with Redis token caching.
+• To ensure drift never sneaks back in, a daily 06:00 GST GitHub Actions workflow runs `terraform plan -detailed-exitcode`. If any engineer touches the AWS console, exit code 2 immediately files a Jira P2 ticket and pings Slack.
+      </div>
+    </div>
+
+    <!-- SLIDE 14: Q8 DISASTER RECOVERY -->
+    <div class="slide" data-title="Q8: Multi-Cloud DR">
+      <div class="slide-header">
+        <span class="badge-tag azure">Question 8: Multi-Cloud Disaster Recovery</span>
+        <h2 class="slide-title">Active-Warm-Standby Architecture: RTO &le; 15 Min, RPO &le; 5 Min</h2>
+        <p class="slide-subtitle">Real-time cross-cloud WAL replication, S3-to-Blob document streaming, and automated failover runbook</p>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric-pill">
+          <div class="metric-value amber">RTO &le; 15m</div>
+          <div class="metric-label">Contractual SLA Target</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-value emerald">10m 15s</div>
+          <div class="metric-label">Actual Measured Failover RTO</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-value amber">RPO &le; 5m</div>
+          <div class="metric-label">Contractual SLA Target</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-value cyan">2.2s</div>
+          <div class="metric-label">Actual Median Database RPO</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card azure">
+          <h3 class="card-title azure">Sub-5-Minute Cross-Cloud Data Replication</h3>
+          <ul class="item-list azure">
+            <li><strong>Relational DB (PostgreSQL):</strong> AWS Aurora PostgreSQL writer publishes WAL changes over IPsec tunnel to Azure PostgreSQL Flexible Server subscriber using <code>pglogical v2.4</code>.
+              <br>&bull; Median measured replication lag: <strong>2.2 seconds</strong> (SLA target: 300s).
+              <br>&bull; Monitored continuously via Prometheus &amp; <code>pg_stat_replication</code>.
+            </li>
+            <li><strong>Object Storage (Scope 1/2 Evidence):</strong> S3 uploads trigger event-driven AWS Lambda (<code>s3-to-azure-replicator</code>) streaming PDFs to Azure Blob Storage over HTTPS. Average sync: <strong>42 seconds</strong>.</li>
+            <li><strong>Stateless Identity:</strong> RS256 JWT tokens. Vault replicates verification public keys across clouds so sessions survive failover.</li>
+          </ul>
+        </div>
+
+        <div class="card purple">
+          <h3 class="card-title purple">Automated Failover Runbook (Measured: 10m 15s)</h3>
+          <ul class="item-list purple">
+            <li><strong>T+0 to 90s — Detection:</strong> Cloudflare synthetic probes fail 3 consecutive checks on <code>/healthz/deep</code>.</li>
+            <li><strong>T+90s — Orchestration:</strong> Incident Commander triggers GitHub Actions automated DR workflow.</li>
+            <li><strong>T+3 to 5m — DB Promotion:</strong> Azure PG subscriber promoted:
+              <pre class="code-block" style="font-size: 10px; margin-top: 4px;">SELECT pglogical.replicate_stop('ahya_aws_subscription');
+SELECT pglogical.drop_subscription('ahya_aws_subscription');
+ALTER SYSTEM SET default_transaction_read_only = 'off';</pre>
+            </li>
+            <li><strong>T+5 to 8m — Compute Scale-Up:</strong> ArgoCD &amp; KEDA scale AKS worker deployments from baseline 2 to production 18 pods.</li>
+            <li><strong>T+8 to 10m — DNS Cutover:</strong> Cloudflare API updates CNAME to <code>origin-azure.ahya.io</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• For enterprise ESG and carbon accounting, contractual SLAs are non-negotiable: RTO <= 15 minutes, RPO <= 5 minutes.
+• Architecture: AWS UAE is 100% active, Azure UAE North is 0% warm standby. Multinet PK and Alibaba KSA run active-active for local compliance.
+• Data Replication: We achieve a median database RPO of 2.2 seconds using pglogical v2.4 over an IPsec tunnel. S3 documents sync to Azure Blob via Lambda in 42 seconds. Identity tokens (RS256) validate seamlessly via Vault-replicated public keys.
+• Failover Execution: Driven by Cloudflare synthetic probes and GitHub Actions. Database promotion takes 2 minutes, KEDA AKS scale-up takes 3 minutes, and Cloudflare DNS cutover takes 2 minutes.
+• Measured drill RTO: 10 minutes and 15 seconds—beating our SLA by almost 5 minutes.
+      </div>
+    </div>
+
+    <!-- SLIDE 15: Q8 WAR STORY -->
+    <div class="slide" data-title="Q8: War Story">
+      <div class="slide-header">
+        <span class="badge-tag coral">Question 8: Production War Story</span>
+        <h2 class="slide-title">The Failed DR Drill: Database Role Drift & Client DNS Caching</h2>
+        <p class="slide-subtitle">How a 100% error spike during a scheduled quarterly drill revealed hidden pglogical DDL limits and enterprise DNS caching</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card coral">
+          <h3 class="card-title coral">1. The 60-Second Post-Cutover Disaster</h3>
+          <ul class="item-list coral">
+            <li><strong>Scheduled Drill:</strong> Simulated total AWS UAE outage during scheduled quarterly disaster exercise.</li>
+            <li><strong>100% Error Spike:</strong> Automated failover triggered cleanly, but 60 seconds after DNS cutover, Azure application errors jumped to 100%!</li>
+            <li><strong>AKS Pod Error Log:</strong>
+              <pre class="code-block" style="font-size: 10px; margin-top: 6px;">psycopg2.OperationalError:
+FATAL: role "ahya_calc_worker" does not exist in database</pre>
+            </li>
+            <li><strong>Client DNS Failure:</strong> Partner enterprise banks cached dead AWS IP addresses, ignoring Cloudflare's 30s TTL.</li>
+          </ul>
+        </div>
+
+        <div class="card amber">
+          <h3 class="card-title amber">2. Root Cause Analysis</h3>
+          <ul class="item-list amber">
+            <li><strong>pglogical DDL Blindspot:</strong> PostgreSQL logical replication synchronizes table DML, but does NOT replicate cluster-level roles, users, or grants.</li>
+            <li><strong>Unmanaged ClickOps Drift:</strong> A newly released Scope 3 calculation worker had been deployed two weeks prior with a manually created DB user (<code>ahya_calc_worker</code>) on AWS Aurora.</li>
+            <li><strong>Azure Auth Barrier:</strong> When AKS scaled up pods on Azure, they could not connect to Azure PostgreSQL because the user only existed on AWS.</li>
+            <li><strong>Stale Enterprise Resolvers:</strong> Upstream corporate bank DNS resolvers ignored TTL expirations.</li>
+          </ul>
+        </div>
+
+        <div class="card emerald">
+          <h3 class="card-title emerald">3. Engineering Resolution & Hardening</h3>
+          <ul class="item-list emerald">
+            <li><strong>Emergency 8-Min Fix:</strong> Injected missing role and privileges across Azure Flexible Server via emergency Ansible playbook.</li>
+            <li><strong>SchemaCrawler Drift Audits:</strong> Implemented daily automated CI pipeline diffing database roles, users, and schemas between AWS and Azure.</li>
+            <li><strong>Cloudflare HTTP 307 Redirects:</strong> Configured Cloudflare Edge origin redirect rules returning HTTP 307 Temporary Redirects during DR events to bypass stubborn client DNS caches.</li>
+            <li><strong>Subsequent Drills:</strong> Passed next quarterly exercise with zero errors and an RTO of 8 minutes 40 seconds.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• Real leadership is demonstrating how you handle failure when an architecture breaks under testing.
+• During a quarterly DR simulation, 60 seconds after cutover, Azure AKS error rates spiked to 100%. Pods threw `role ahya_calc_worker does not exist`.
+• We uncovered a critical technical reality: PostgreSQL `pglogical` replicates table rows, but it does NOT replicate cluster roles or users! An engineer had created that user manually on AWS two weeks earlier.
+• Furthermore, client bank ERPs had stubborn DNS resolvers that cached the dead AWS IP despite our 30-second TTL.
+• We recovered in 8 minutes with an emergency Ansible script. Then we engineered permanent systemic safeguards: daily SchemaCrawler DDL drift checks in CI, and Cloudflare HTTP 307 temporary redirect rules to bypass broken client DNS resolvers.
+      </div>
+    </div>
+
+    <!-- SLIDE 16: LEADERSHIP & 30-60-90 -->
+    <div class="slide" data-title="Leadership & Roadmap">
+      <div class="slide-header">
+        <span class="badge-tag purple">Leadership & Strategic Impact</span>
+        <h2 class="slide-title">Platform Engineering Philosophy & 30-60-90 Day Execution Plan</h2>
+        <p class="slide-subtitle">How I will partner with the CTO and VP of Engineering to elevate reliability, security, velocity, and FinOps</p>
+      </div>
+
+      <div class="metric-row" style="margin-bottom: 14px;">
+        <div class="metric-pill" style="text-align: left; padding: 10px 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--accent-cyan);">Reliability & SLOs</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Error budgets, 99.99% uptime, MTTR &lt; 30m</div>
+        </div>
+        <div class="metric-pill" style="text-align: left; padding: 10px 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--accent-purple);">DevSecOps & Zero Trust</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">SOC 2 Type II, 4h CVE turnaround, Trivy gates</div>
+        </div>
+        <div class="metric-pill" style="text-align: left; padding: 10px 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--accent-emerald);">FinOps Accountability</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">20% cost optimization ($192K/yr), Kubecost</div>
+        </div>
+        <div class="metric-pill" style="text-align: left; padding: 10px 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--accent-amber);">Developer Velocity</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">GitOps matrix, ephemeral staging, zero ClickOps</div>
+        </div>
+      </div>
+
+      <div class="card cyan" style="flex: 1; padding: 18px 22px;">
+        <h3 class="card-title cyan" style="font-size: 15px; margin-bottom: 12px;">30-60-90 Day High-Impact Execution Roadmap</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <div style="font-size: 12.5px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 4px;">DAYS 1 – 30: Discovery, Observability & Drift Audit</div>
+            <ul class="item-list cyan" style="font-size: 11.5px;">
+              <li><strong>Audit Infrastructure Drift:</strong> Deploy automated drift scanning across all AWS, Azure, Alibaba & Multinet resources.</li>
+              <li><strong>FinOps Baseline:</strong> Enforce unified tagging (AhyaOS, Tawazun, AhyaAI) and integrate Infracost in GitHub Actions.</li>
+              <li><strong>Runbook Verification:</strong> Review P1 incident playbooks, on-call rotations, and backup/restore verification.</li>
+            </ul>
+          </div>
+
+          <div>
+            <div style="font-size: 12.5px; font-weight: 700; color: var(--accent-purple); margin-bottom: 4px;">DAYS 31 – 60: Standardization, GitOps & Hardening</div>
+            <ul class="item-list purple" style="font-size: 11.5px;">
+              <li><strong>Unified GitOps Fleet:</strong> Standardize all 8 K8s clusters under Argo CD v2.9.3 with ApplicationSets and Helm matrix.</li>
+              <li><strong>Zero ClickOps Mandate:</strong> Import remaining manual infrastructure into Terraform 1.5+ declarative modules.</li>
+              <li><strong>CI/CD Security Gating:</strong> Enforce Trivy vulnerability gates and pg_query database static analysis in all pipelines.</li>
+            </ul>
+          </div>
+
+          <div>
+            <div style="font-size: 12.5px; font-weight: 700; color: var(--accent-emerald); margin-bottom: 4px;">DAYS 61 – 90: Resilience, Chaos Testing & Autonomy</div>
+            <ul class="item-list emerald" style="font-size: 11.5px;">
+              <li><strong>Automated DR Validation:</strong> Conduct scheduled multi-cloud DR failover drills with automated SchemaCrawler verification.</li>
+              <li><strong>Self-Service Developer Platform:</strong> Provide ephemeral staging environments using Kubernetes vcluster / namespaces.</li>
+              <li><strong>FinOps Optimization Wave 2:</strong> Achieve target 20% recurring cloud spend reduction and report savings to executive board.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+TALKING POINTS FOR CTO & VP ENG:
+• As your platform lead, my goal is to free product engineering to build features fast while guaranteeing the foundation is unshakeable, secure, and cost-efficient.
+• My leadership philosophy centers on 4 pillars: Reliability (error budgets & MTTR < 30m), DevSecOps (SOC 2, 4h zero-day SLAs), FinOps ($192K/year recurring savings), and Velocity (self-service GitOps).
+• In my first 30 days: Deep discovery, drift auditing, and establishing single-pane-of-glass FinOps and telemetry.
+• Days 31-60: Standardizing all Kubernetes clusters under ArgoCD ApplicationSets, eradicating all ClickOps via Terraform, and enforcing Trivy CI security gates.
+• Days 61-90: Institutionalizing quarterly chaos engineering DR drills and delivering the full 20% recurring infrastructure cost reduction back to the business.
+      </div>
+    </div>
+
+    <!-- SLIDE 17: CANDIDATE SUMMARY & QA -->
+    <div class="slide" data-title="Summary & Q&A">
+      <div style="margin-top: 18px; margin-bottom: 22px;">
+        <div style="width: 50px; height: 4px; background: var(--accent-emerald); border-radius: 2px; margin-bottom: 14px; box-shadow: 0 0 10px var(--accent-emerald);"></div>
+        <h1 style="font-size: 36px; font-weight: 800; line-height: 1.2; margin-bottom: 8px;">Thank You — Open for Technical Q&A</h1>
+        <p style="font-size: 15px; color: var(--text-muted);">Prepared for CTO & VP of Engineering Recruitment Evaluation | Ready for Deep-Dive Architecture Inquiry</p>
+      </div>
+
+      <div class="grid-2" style="flex: 1;">
+        <div class="card cyan">
+          <h3 class="card-title cyan">Candidate Profile & Technical Mastery</h3>
+          <ul class="item-list cyan" style="margin-top: 8px;">
+            <li><strong>Candidate:</strong> Asghar Ahmed — Senior DevOps & Cloud Infrastructure Architect</li>
+            <li><strong>Email:</strong> asghar.ahmed78692@gmail.com &nbsp;|&nbsp; <strong>Phone:</strong> +92 345 3796919</li>
+            <li><strong>Date:</strong> September 2026</li>
+            <li><strong>Cloud Hyperscalers:</strong> AWS, Microsoft Azure, Alibaba Cloud, VMware vCloud Director (vCD)</li>
+            <li><strong>Container Orchestration:</strong> Kubernetes (EKS, AKS, ACK, RKE2), Karpenter, KEDA, Cilium CNI</li>
+            <li><strong>IaC & Configuration:</strong> Terraform 1.5+ (Declarative Imports), Ansible Core, AWX, Packer</li>
+            <li><strong>GitOps & CI/CD:</strong> Argo CD (ApplicationSets), GitHub Actions, Trivy, Renovate</li>
+            <li><strong>Security & Governance:</strong> OWASP CRS v4, Coraza WAF, AWS WAFv2, HashiCorp Vault, SOC 2 Type II</li>
+          </ul>
+        </div>
+
+        <div class="card purple">
+          <h3 class="card-title purple">Case Study Architecture Deliverables</h3>
+          <ul class="item-list purple" style="margin-top: 8px;">
+            <li><strong>Q1 — Multi-Cloud IaC:</strong> Decoupled monorepo, MinIO/Consul state isolation, Vault dynamic auth.</li>
+            <li><strong>Q2 — K8s GitOps Fleet:</strong> ArgoCD ApplicationSets, multi-cloud storage classes, Cilium eBPF fix.</li>
+            <li><strong>Q3 — Fleet Patching:</strong> Ring deployment for 200 VMs, WinRM HTTPS, 4h Looney Tunables SLA.</li>
+            <li><strong>Q4 — WAF & Zero Trust:</strong> Coraza & WAFv2, 11m KPMG audit false positive fix, 24h DB rotation.</li>
+            <li><strong>Q5 — FinOps Impact:</strong> $16,000/mo recurring savings (20%) across compute, storage, DR & ISP.</li>
+            <li><strong>Q6 — P1 3 AM Outage RCA:</strong> 24m MTTR, 5-Whys, PgBouncer transaction mode, CI query linting.</li>
+            <li><strong>Q7 — 100% IaC Strategy:</strong> 3-phase risk migration, TF 1.5 imports, daily 06:00 GST drift detection.</li>
+            <li><strong>Q8 — Multi-Cloud DR:</strong> RTO 10m15s / RPO 2.2s, pglogical CDC, SchemaCrawler drift audits.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaker-note-content" style="display:none;">
+CLOSING REMARKS FOR CTO & VP ENG:
+• Thank you very much for your time and consideration.
+• To summarize: I don't just write scripts—I build reliable, secure, and cost-efficient platforms that empower product teams to ship with confidence.
+• I have lived through real production fires—from midnight WAF blocks during audit deadlines, to 3 AM database connection saturations, to zero-day CVE turnaround—and in every instance, I have engineered permanent systemic solutions.
+• I look forward to answering any questions you have on multi-cloud topology, Kubernetes operations, database replication, or how I would lead your platform team.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <div id="nav-bar">
+    <div class="nav-left">
+      <button class="nav-btn" id="prev-btn" onclick="prevSlide()">&#8592; Prev</button>
+      <button class="nav-btn" id="next-btn" onclick="nextSlide()">Next &#8594;</button>
+      <span class="slide-counter" id="slide-counter">Slide 1 of 17</span>
+    </div>
+
+    <div style="font-size: 12px; color: var(--text-dim); font-weight: 500;">
+      Use &larr; / &rarr; arrow keys to navigate &nbsp;|&nbsp; Press <kbd style="background:#172033; padding:2px 7px; border-radius:4px; border:1px solid #334155; color:var(--accent-cyan);">F</kbd> for Fullscreen &nbsp;|&nbsp; Press <kbd style="background:#172033; padding:2px 7px; border-radius:4px; border:1px solid #334155; color:var(--accent-cyan);">S</kbd> for Speaker Notes
+    </div>
+
+    <div class="nav-right">
+      <a href="Multi_Cloud_DevOps_Executive_Presentation_Redesigned.pptx" download class="nav-btn" style="text-decoration:none;">Download PPTX</a>
+      <button class="nav-btn" onclick="toggleNotes()">Speaker Notes</button>
+      <button class="nav-btn primary" onclick="toggleFullScreen()">Fullscreen</button>
+    </div>
+  </div>
+
+  <!-- SPEAKER NOTES DRAWER -->
+  <div id="notes-drawer">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <div class="notes-title">CTO & VP ENG Presenter Notes & Talking Points</div>
+      <button onclick="toggleNotes()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px;">&times;</button>
+    </div>
+    <div class="notes-body" id="notes-content"></div>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('slide-counter');
+    const notesDrawer = document.getElementById('notes-drawer');
+    const notesContent = document.getElementById('notes-content');
+
+    function updateSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+      slides[currentSlide].classList.remove('active');
+      currentSlide = index;
+      slides[currentSlide].classList.add('active');
+      counter.textContent = `Slide ${currentSlide + 1} of ${slides.length} : ${slides[currentSlide].getAttribute('data-title')}`;
+      
+      const noteElem = slides[currentSlide].querySelector('.speaker-note-content');
+      notesContent.textContent = noteElem ? noteElem.innerText.trim() : 'No speaker notes for this slide.';
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) updateSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) updateSlide(currentSlide - 1);
+    }
+
+    function toggleNotes() {
+      notesDrawer.classList.toggle('open');
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => alert(err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+      else if (e.key === 'ArrowLeft') prevSlide();
+      else if (e.key.toLowerCase() === 's') toggleNotes();
+      else if (e.key.toLowerCase() === 'f') toggleFullScreen();
+    });
+
+    updateSlide(0);
+  </script>
+</body>
+</html>
